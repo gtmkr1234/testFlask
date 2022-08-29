@@ -2,14 +2,14 @@ import os
 from flask import Flask
 from application import config
 from application.config import LocalDevelopmentConfig
-from applicatin.database import db
+from application.database import db
 
 
-app=None
+app = None
 
 def create_app():
-    app = Flask(__name__,template_folder="templates")
-    if os.getenv('ENV', "development")== "production":
+    app = Flask(__name__, template_folder="templates")
+    if os.getenv('ENV', "development") == "production":
         raise Exception("Currently no production config is setup")
     else:
         print("Starting local development")
@@ -27,4 +27,4 @@ from application.controllers import *
 
 
 if __name__ == '__main__':
-    app.run('0.0.0.0',port=5050)
+    app.run(host='0.0.0.0',port=5050)
