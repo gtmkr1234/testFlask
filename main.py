@@ -3,6 +3,7 @@ from flask import Flask
 from application import config
 from application.config import LocalDevelopmentConfig
 from application.database import db
+from flask_restful import Api, Resource
 
 
 app = None
@@ -14,12 +15,13 @@ def create_app():
     else:
         print("Starting local development")
         app.config.from_object(LocalDevelopmentConfig)
+    api = Api(app)
     db.init_app(app)
     app.app_context().push()
-    return app
+    return app, api
 
 
-app = create_app()
+app, api = create_app()
 
 
 #Importing all controllers so they are loaded
