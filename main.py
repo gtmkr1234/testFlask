@@ -30,7 +30,7 @@ from application.controllers import *
 #Adding all restful controllers
 from application.api import UserAPI
 
-api.add_resource(UserAPI, "api/user", "api/user/<string:username>")
+api.add_resource(UserAPI, "/api/user", "/api/user/<string:username>")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=5050)

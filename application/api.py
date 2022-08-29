@@ -3,11 +3,15 @@ from flask_restful import Resource
 
 class UserAPI(Resource):
     def get(self, username):
-        pass
+
+        return {"username": username}
     def put(self, username):
-        pass
+        print("PUT username", username)
+        return {"username": username}
     def delete(self, username):
-        pass
+        print("DELETE username", username)
+        return {"username": username, "action": "DELETE"}
     def post(self):
-        pass
+        print("POST")
+        return {"action": "POST"}
 
