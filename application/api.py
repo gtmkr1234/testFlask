@@ -1,13 +1,21 @@
-from flask_restful import Resource
+from flask_restful import Resource, reqparse
 from application.database import db
 from application.models import User
 from flask_restful import fields, marshal_with
+from application.validation import NotFoundError, BuisnessValidationError
+
 
 output_fields = {
     "user_id": fields.Integer,
     "username": fields.String,
     "email": fields.String
 }
+
+create_user_parser = reqparse.RequestParser()
+create_user_parser.add_argument('username')
+create_user_parser.add_argument('email')
+
+
 
 
 class UserAPI(Resource):
@@ -24,7 +32,7 @@ class UserAPI(Resource):
 
         else:
             # return 404 error
-            return '', 404
+            raise NotFoundError(status_code=404)
 
     def put(self, username):
         print("PUT username", username)
@@ -35,5 +43,15 @@ class UserAPI(Resource):
         return {"username": username, "action": "DELETE"}
 
     def post(self):
-        print("POST")
-        return {"action": "POST"}
+        args = create_user_parser.parse_args()
+        username = args.get('username', None)
+        email = args.get('email', None)
+
+        if username is None:
+            raise BuisnessValidationError(status_code=404, error_code='BE1001', error_message="username is required")
+
+        if email is None:
+            raise BuisnessValidationError(status_code=404, error_code='BE1002', error_message="email is required")
+
+        if not "@" in email:
+            raise BuisnessValidationError(status_code=404, error_code='BE1003', error_message="invalid email")
