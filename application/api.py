@@ -4,7 +4,6 @@ from application.models import User
 from flask_restful import fields, marshal_with
 from application.validation import NotFoundError, BuisnessValidationError
 
-
 output_fields = {
     "user_id": fields.Integer,
     "username": fields.String,
@@ -14,8 +13,6 @@ output_fields = {
 create_user_parser = reqparse.RequestParser()
 create_user_parser.add_argument('username')
 create_user_parser.add_argument('email')
-
-
 
 
 class UserAPI(Resource):
@@ -48,10 +45,19 @@ class UserAPI(Resource):
         email = args.get('email', None)
 
         if username is None:
-            raise BuisnessValidationError(status_code=404, error_code='BE1001', error_message="username is required")
+            raise BuisnessValidationError(status_code=400, error_code='BE1001', error_message="username is required")
 
         if email is None:
-            raise BuisnessValidationError(status_code=404, error_code='BE1002', error_message="email is required")
+            raise BuisnessValidationError(status_code=400, error_code='BE1002', error_message="email is required")
 
         if "@" not in email:
-            raise BuisnessValidationError(status_code=404, error_code='BE1003', error_message="invalid email")
+            raise BuisnessValidationError(status_code=400, error_code='BE1003', error_message="invalid email")
+
+        user = db.session.query(User).filter((User.username == username) | (User.email == email)).first()
+        if user:
+            raise BuisnessValidationError(status_code=400, error_code='BE1004', error_message="Duplicate User!!!")
+
+        new_user = User(username=username, email=email)
+        db.session.add(new_user)
+        db.session.commit()
+        return "", 201
