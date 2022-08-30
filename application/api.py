@@ -53,5 +53,5 @@ class UserAPI(Resource):
         if email is None:
             raise BuisnessValidationError(status_code=404, error_code='BE1002', error_message="email is required")
 
-        if not "@" in email:
+        if "@" not in email:
             raise BuisnessValidationError(status_code=404, error_code='BE1003', error_message="invalid email")
