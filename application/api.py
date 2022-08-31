@@ -14,6 +14,8 @@ create_user_parser = reqparse.RequestParser()
 create_user_parser.add_argument('username')
 create_user_parser.add_argument('email')
 
+update_user_parser = reqparse.RequestParser()
+update_user_parser.add_argument('email')
 
 class UserAPI(Resource):
     @marshal_with(output_fields)
@@ -31,9 +33,29 @@ class UserAPI(Resource):
             # return 404 error
             raise NotFoundError(status_code=404)
 
+    @marshal_with(output_fields)
     def put(self, username):
-        print("PUT username", username)
-        return {"username": username}
+        args = update_user_parser.parse_args()
+        email = args.get('email', None)
+        if email is None:
+            raise BuisnessValidationError(status_code=400, error_code='BE1002', error_message="email is required")
+
+        if "@" not in email:
+            raise BuisnessValidationError(status_code=400, error_code='BE1003', error_message="invalid email")
+
+        user = db.session.query(User).filter(User.email == email).first()
+        if user:
+            raise BuisnessValidationError(status_code=400, error_code='BE1006', error_message="Duplicate Email")
+
+        user = db.session.query(User).filter(User.username == username).first()
+        if user is None:
+            raise NotFoundError(status_code=404)
+
+        user.email = email
+        db.session.add(user)
+        db.session.commit()
+        return user
+
 
     def delete(self, username):
         # Check if the user exists
