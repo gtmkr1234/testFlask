@@ -1,6 +1,6 @@
 from flask_restful import Resource, reqparse
 from application.database import db
-from application.models import User
+from application.models import User, Article
 from flask_restful import fields, marshal_with
 from application.validation import NotFoundError, BuisnessValidationError
 
@@ -36,8 +36,24 @@ class UserAPI(Resource):
         return {"username": username}
 
     def delete(self, username):
-        print("DELETE username", username)
-        return {"username": username, "action": "DELETE"}
+        # Check if the user exists
+        user = db.session.query(User).filter(User.username == username).first()
+        if user is None:
+            raise NotFoundError(status_code=404)
+
+        # If the user exists, check if there are any articles
+        # If true, then throw error
+        articles = Article.query.filter(Article.authors.any(User.username == username)).first()
+        print(articles)
+
+        if articles:
+            raise BuisnessValidationError(status_code=400, error_code='BE1005', error_message="can't delete users as articles are written by user")
+
+        # if no dependency, then delete
+        db.session.delete(user)
+        db.session.commit()
+
+        return "", 200
 
     def post(self):
         args = create_user_parser.parse_args()
