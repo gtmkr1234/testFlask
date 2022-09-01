@@ -4,6 +4,9 @@ from application import config
 from application.config import LocalDevelopmentConfig
 from application.database import db
 from flask_restful import Api, Resource
+import logging
+
+logging.basicConfig(filename='debug.log', level=logging.DEBUG, format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 app = None
 
